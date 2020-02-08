@@ -34,6 +34,34 @@ def auth_headers(access_token: Text) -> Dict[Text, Text]:
     return {"Authorization": "Bearer " + access_token}
 
 
+def params_2_string(params: Dict[Text, Text]) -> Text:
+    if params is None or len(params.keys()) == 0:
+        return ""
+
+    out = "?"
+    for k, v in params.items():
+        out = out + k + "=" + v + "&"
+    out = out[:-1]  # remove last &
+    return out
+
+
+def is_success(status: Dict[Text, Text]) -> bool:
+    """
+    Asserts if HTTP response is successful.
+
+    Args:
+        status: HTTP response to assert.
+
+    Returns:
+        True if response is successful, false otherwise.
+    """
+    if (status["code"] != 200):
+        print(status["error"])
+        print(status["help"])
+        return False
+    return True
+
+
 def register(username: Text, email: Text, password: Text, agreed: bool) -> Response:
     """
     Registers a new client to the aEi.ai service with given client username, email, and password.
@@ -114,7 +142,7 @@ def create_new_user(access_token: Text, attributes: Dict[Text, Text] = None) -> 
     body = json.dumps(attributes) if attributes else None
 
     # make an API call to the aEi.ai service to create a new user for user
-    return post(url=url, json=body, headers=headers)
+    return post(url=url, data=body, headers=headers)
 
 
 def create_new_interaction(user_ids: List[Text], access_token: Text) -> Response:
@@ -207,17 +235,34 @@ def new_text_input(user_id: Text, interaction_id: Text, text: Text, access_token
     headers = auth_headers(access_token)
 
     # prepare parameters
-    params = {
+    url = url + params_2_string(params={
         "user_id": user_id,
         "interaction_id": interaction_id
-    }
-
-    # prepare body
-    # TODO: check if body should be JSON instead of string
-    body = "{text: " + text + "}"
+    })
 
     # make an API call to the aEi.ai service to send the new user utterance to the interaction
-    return post(url=url, data=params, json=body, headers=headers)
+    return post(url=url, data=text, headers=headers)
+
+
+def new_interaction_list_input(json_string: Text, access_token: Text) -> Response:
+    """
+    Analyzes a list of interactions passed as JSON.
+
+    Args:
+        json_string: Interaction list as JSON string.
+        access_token: Client's access token.
+
+    Returns:
+        Response to analyzing given list of interactions.
+    """
+    # prepare URL
+    url = API_URL + "/inputs/interaction-list"
+
+    # prepare headers
+    headers = auth_headers(access_token)
+
+    # make an API call to the aEi.ai service to send the new user utterance to the interaction
+    return post(url=url, data=json_string, headers=headers)
 
 
 def get_user(user_id: Text, access_token: Text) -> Response:
@@ -553,7 +598,7 @@ def update_source(source_id: Text, update_params: Dict[Text, Text], access_token
     body = json.dumps(update_params) if update_params else None
 
     # make an API call to the aEi.ai service to update a payment source
-    return put(url=url, json=body, headers=headers)
+    return put(url=url, data=body, headers=headers)
 
 
 def change_password(password: Text, access_token: Text) -> Response:
@@ -622,20 +667,3 @@ def update_password(username: Text, password_reset_token: Text, new_password: Te
 
     # make an API call to the aEi.ai service to change password
     return put(url=url, headers=headers)
-
-
-def is_success(status: Dict[Text, Text]) -> bool:
-    """
-    Asserts if HTTP response is successful.
-
-    Args:
-        status: HTTP response to assert.
-
-    Returns:
-        True if response is successful, false otherwise.
-    """
-    if (status["code"] != 200):
-        print(status["error"])
-        print(status["help"])
-        return False
-    return True
