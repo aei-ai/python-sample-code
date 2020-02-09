@@ -190,6 +190,26 @@ def get_interaction(interaction_id: Text, access_token: Text) -> Response:
     return get(url=url, headers=headers)
 
 
+def get_interaction_list(access_token: Text) -> Response:
+    """
+    Gets list of all interactions of the client.
+
+    Args:
+        access_token: Client's access token.
+
+    Returns:
+        Response to getting list of all the interactions of the client.
+    """
+    # prepare URL
+    url = API_URL + "/interactions"
+
+    # prepare headers
+    headers = auth_headers(access_token)
+
+    # make an API call to the aEi.ai service to get an interaction with given ID
+    return get(url=url, headers=headers)
+
+
 def add_users_to_interaction(interaction_id: Text, user_ids: List[Text], access_token: Text) -> Response:
     """
     Adds given user to the given interaction in aEi.ai service.
