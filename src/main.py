@@ -1,5 +1,5 @@
 import sys
-from api.aei_api import *
+from api.aei_ai import *
 
 # replace username with your username
 USERNAME = "<YOUR USERNAME>"

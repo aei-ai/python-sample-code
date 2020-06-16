@@ -31,10 +31,48 @@ class Status:
 
 
 def auth_headers(access_token: Text) -> Dict[Text, Text]:
+    """
+    Generates authentication header given the access token.
+
+    Args:
+        access_token: Authentication access token.
+
+    Returns:
+        Authentication header including access token.
+    """
     return {"Authorization": "Bearer " + access_token}
 
 
+def params_2_string(name: Text, values: List[Text]) -> Text:
+    """
+    Converts given list of parameter values to a string.
+
+    Args:
+        name: Name of all parameters.
+        values: List of values for given parameter name.
+
+    Returns:
+        String including key-value pairs, for example, ?key=value1&key=value2 for
+        name=key and value = [value1, value2].
+    """
+    params = ""
+    for i, value in enumerate(values):
+        params += "?" if i == 0 else "&"
+        params += name + "=" + value
+    return params
+
+
 def params_2_string(params: Dict[Text, Text]) -> Text:
+    """
+    Converts given key-value pairs to a string.
+
+    Args:
+        params: key-value pairs as a map.
+
+    Returns:
+         String including key-value pairs, for example, ?key1=value1&key2=value2 for
+         {"key1": "value1", "key2": "value2"}.
+    """
     if params is None or len(params.keys()) == 0:
         return ""
 
@@ -408,6 +446,31 @@ def get_user_social_perception(user_id: Text, access_token: Text) -> Response:
     headers = auth_headers(access_token)
 
     # make an API call to the aEi.ai service to get user's social perception
+    return get(url=url, headers=headers)
+
+
+def get_user_empathy(user_id: Text, target_user_ids: List[Text], access_token: Text) -> Response:
+    """
+    Gets user's empathy towards given user IDs.
+
+    Args:
+        user_id: Given user ID.
+        target_user_ids: Target user IDs.
+        access_token: Client's access token.
+
+    Returns:
+        Response to getting the user's empathy.
+    """
+    # prepare URL
+    url = API_URL + "/users/" + user_id + "/empathy"
+
+    # prepare headers
+    headers = auth_headers(access_token)
+
+    # prepare parameters
+    url = url + params_2_string(name="target_user_id", values=target_user_ids)
+
+    # make an API call to the aEi.ai service to get user's empathy
     return get(url=url, headers=headers)
 
 
