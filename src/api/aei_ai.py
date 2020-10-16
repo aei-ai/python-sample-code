@@ -273,7 +273,7 @@ def add_users_to_interaction(interaction_id: Text, user_ids: List[Text], access_
     return put(url=url, data=params, headers=headers)
 
 
-def new_text_input(user_id: Text, interaction_id: Text, text: Text, access_token: Text) -> Response:
+def send_text(user_id: Text, interaction_id: Text, text: Text, access_token: Text) -> Response:
     """
     Sends given user's text to given interaction.
 
@@ -302,25 +302,54 @@ def new_text_input(user_id: Text, interaction_id: Text, text: Text, access_token
     return post(url=url, data=text, headers=headers)
 
 
-def new_interaction_list_input(json_string: Text, access_token: Text) -> Response:
+def send_image(user_id: Text, interaction_id: Text, image: Text, access_token: Text) -> Response:
     """
-    Analyzes a list of interactions passed as JSON.
+    Sends given user's image input to given interaction.
 
     Args:
-        json_string: Interaction list as JSON string.
+        user_id: Source user ID.
+        interaction_id: Target interaction ID.
+        image: User's input image URL.
         access_token: Client's access token.
 
     Returns:
-        Response to analyzing given list of interactions.
+        Response to sending a new image input to an interaction.
     """
     # prepare URL
-    url = API_URL + "/inputs/interaction-list"
+    url = API_URL + "/inputs/image"
+
+    # prepare headers
+    headers = auth_headers(access_token)
+
+    # prepare parameters
+    url = url + params_2_string(params={
+        "user_id": user_id,
+        "interaction_id": interaction_id
+    })
+
+    # make an API call to the aEi.ai service to send the new user utterance to the interaction
+    return post(url=url, data=image, headers=headers)
+
+
+def send_inputs(inputs: Text, access_token: Text) -> Response:
+    """
+    Analyzes multiple inputs passed as JSON.
+
+    Args:
+        inputs: Inputs as JSON string.
+        access_token: Client's access token.
+
+    Returns:
+        Response to analyzing given inputs.
+    """
+    # prepare URL
+    url = API_URL + "/inputs"
 
     # prepare headers
     headers = auth_headers(access_token)
 
     # make an API call to the aEi.ai service to send the new user utterance to the interaction
-    return post(url=url, data=json_string, headers=headers)
+    return post(url=url, data=inputs, headers=headers)
 
 
 def get_user(user_id: Text, access_token: Text) -> Response:

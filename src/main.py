@@ -48,7 +48,13 @@ def main():
 
     # send an utterance by user1 to the interaction
     text = "I am happy"
-    response = new_text_input(user_id=user1_id, interaction_id=interaction_id, text=text, access_token=access_token)
+    response = send_text(user_id=user1_id, interaction_id=interaction_id, text=text, access_token=access_token)
+    if not is_success(status=response.json()["status"]):
+        sys.exit(1)
+
+    # send an image by user1 to the interaction
+    image = "https://aei.ai/img/faces.jpg"
+    response = send_image(user_id=user1_id, interaction_id=interaction_id, image=image, access_token=access_token)
     if not is_success(status=response.json()["status"]):
         sys.exit(1)
 
